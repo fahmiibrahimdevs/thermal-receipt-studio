@@ -7,12 +7,92 @@ import { Navbar } from './components/Navbar';
 import { SidebarEditor } from './components/SidebarEditor';
 import { ThermalReceipt } from './components/ThermalReceipt';
 
+// Data Migration & Normalizer (defensive against legacy localStorage schema)
+function migrateReceiptData(parsed: any): FullReceiptData {
+  if (!parsed || typeof parsed !== 'object') {
+    return defaultReceiptData;
+  }
+
+  // 1. Migrate store lines
+  let storeLines = parsed.store?.lines;
+  if (!Array.isArray(storeLines) || storeLines.length === 0) {
+    storeLines = [];
+    if (parsed.store?.name) storeLines.push({ id: '1', text: parsed.store.name, isBold: true });
+    if (parsed.store?.slogan) storeLines.push({ id: '2', text: parsed.store.slogan, isBold: false });
+    if (parsed.store?.address) storeLines.push({ id: '3', text: parsed.store.address, isBold: false });
+    if (parsed.store?.phone) storeLines.push({ id: '4', text: `Telp: ${parsed.store.phone}`, isBold: false });
+    if (parsed.store?.website) storeLines.push({ id: '5', text: parsed.store.website, isBold: false });
+    if (storeLines.length === 0) {
+      storeLines = defaultReceiptData.store.lines;
+    }
+  }
+
+  // 2. Migrate transaction info lines
+  let transLines = parsed.transaction?.lines;
+  if (!Array.isArray(transLines) || transLines.length === 0) {
+    transLines = [];
+    if (parsed.transaction?.receiptNo) transLines.push({ id: '1', label: 'No. Nota', value: parsed.transaction.receiptNo, isBold: true });
+    if (parsed.transaction?.date) transLines.push({ id: '2', label: 'Tanggal', value: parsed.transaction.date, isBold: false });
+    if (parsed.transaction?.time) transLines.push({ id: '3', label: 'Waktu', value: parsed.transaction.time, isBold: false });
+    if (parsed.transaction?.cashier) transLines.push({ id: '4', label: 'Kasir', value: parsed.transaction.cashier, isBold: false });
+    if (parsed.transaction?.customerName) transLines.push({ id: '5', label: 'Pelanggan', value: parsed.transaction.customerName, isBold: false });
+    if (parsed.transaction?.tableOrOrderNo) transLines.push({ id: '6', label: 'No. Meja', value: parsed.transaction.tableOrOrderNo, isBold: true });
+    if (transLines.length === 0) {
+      transLines = defaultReceiptData.transaction.lines;
+    }
+  }
+
+  // 3. Migrate footer lines
+  let footerLines = parsed.footer?.lines;
+  if (!Array.isArray(footerLines) || footerLines.length === 0) {
+    footerLines = [];
+    if (parsed.footer?.noteLine1) footerLines.push({ id: '1', text: parsed.footer.noteLine1, isBold: true });
+    if (parsed.footer?.noteLine2) footerLines.push({ id: '2', text: parsed.footer.noteLine2, isBold: false });
+    if (parsed.footer?.customFooterText) footerLines.push({ id: '3', text: parsed.footer.customFooterText, isBold: false });
+    if (footerLines.length === 0) {
+      footerLines = defaultReceiptData.footer.lines;
+    }
+  }
+
+  const paymentMethod = parsed.calculation?.paymentMethod || parsed.transaction?.paymentMethod || 'Tunai';
+
+  return {
+    ...defaultReceiptData,
+    ...parsed,
+    store: {
+      ...defaultReceiptData.store,
+      ...(parsed.store || {}),
+      lines: storeLines
+    },
+    transaction: {
+      ...defaultReceiptData.transaction,
+      ...(parsed.transaction || {}),
+      lines: transLines
+    },
+    calculation: {
+      ...defaultReceiptData.calculation,
+      ...(parsed.calculation || {}),
+      paymentMethod
+    },
+    footer: {
+      ...defaultReceiptData.footer,
+      ...(parsed.footer || {}),
+      lines: footerLines
+    },
+    settings: {
+      ...defaultReceiptData.settings,
+      ...(parsed.settings || {})
+    }
+  };
+}
+
 export function App() {
   const [data, setData] = useState<FullReceiptData>(() => {
     const saved = localStorage.getItem('thermal_receipt_data');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        return migrateReceiptData(parsed);
       } catch (e) {}
     }
     return defaultReceiptData;
@@ -37,14 +117,16 @@ export function App() {
   const handleLoadPreset = (key: string) => {
     const preset = samplePresets[key];
     if (preset) {
-      const updated: FullReceiptData = {
+      const merged = migrateReceiptData({
         ...data,
         ...preset,
         store: { ...data.store, ...(preset.store || {}) },
+        transaction: { ...data.transaction, ...(preset.transaction || {}) },
         items: preset.items || data.items,
+        calculation: { ...data.calculation, ...(preset.calculation || {}) },
         footer: { ...data.footer, ...(preset.footer || {}) }
-      };
-      setData(updated);
+      });
+      setData(merged);
     }
   };
 
@@ -70,8 +152,15 @@ export function App() {
         pixelRatio: 3,
         backgroundColor: '#ffffff'
       });
+      const receiptNo = data.transaction.lines?.find(l => 
+        l.label.toLowerCase().includes('nota') || 
+        l.label.toLowerCase().includes('inv') || 
+        l.label.toLowerCase().includes('trx')
+      )?.value || '58mm';
+
+      const sanitizedNo = receiptNo.replace(/[^a-zA-Z0-9_-]/g, '_');
       const link = document.createElement('a');
-      link.download = `Nota-${data.transaction.receiptNo || '58mm'}.png`;
+      link.download = `Nota-${sanitizedNo}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {

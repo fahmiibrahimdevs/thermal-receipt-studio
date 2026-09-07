@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { 
   Store, Receipt, ShoppingCart, Calculator, FileText, Settings, 
   Plus, Trash2, RefreshCw, Upload, Image as ImageIcon, QrCode, 
-  Barcode, Check, Sparkles, ChevronDown, ChevronRight, Type
+  Barcode, Check, Sparkles, ChevronDown, ChevronRight, Type,
+  ArrowUp, ArrowDown, Clock, Hash
 } from 'lucide-react';
-import { FullReceiptData, ReceiptItem } from '../types';
+import { FullReceiptData, ReceiptItem, HeaderLine, ReceiptInfoLine, FooterLine } from '../types';
 import { generateReceiptNo, formatRupiah } from '../utils/format';
-import { samplePresets } from '../data/initialData';
 
 interface SidebarEditorProps {
   data: FullReceiptData;
@@ -23,13 +23,9 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'store' | 'trans' | 'items' | 'calc' | 'footer' | 'settings'>('items');
 
-  // Helpers
+  // Helpers for generic sections
   const updateStore = (field: string, value: any) => {
     onChange({ ...data, store: { ...data.store, [field]: value } });
-  };
-
-  const updateTrans = (field: string, value: any) => {
-    onChange({ ...data, transaction: { ...data.transaction, [field]: value } });
   };
 
   const updateCalc = (field: string, value: any) => {
@@ -125,6 +121,183 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
   // Quick cash buttons
   const setQuickCash = (amount: number) => {
     updateCalc('paidAmount', amount);
+  };
+
+  // 1. DYNAMIC STORE HEADER LINES
+  const addHeaderLine = () => {
+    const newLine: HeaderLine = {
+      id: Date.now().toString(),
+      text: '',
+      isBold: false
+    };
+    onChange({
+      ...data,
+      store: {
+        ...data.store,
+        lines: [...(data.store.lines || []), newLine]
+      }
+    });
+  };
+
+  const updateHeaderLine = (index: number, field: keyof HeaderLine, value: any) => {
+    const newLines = [...(data.store.lines || [])];
+    newLines[index] = { ...newLines[index], [field]: value };
+    onChange({
+      ...data,
+      store: {
+        ...data.store,
+        lines: newLines
+      }
+    });
+  };
+
+  const removeHeaderLine = (index: number) => {
+    const newLines = (data.store.lines || []).filter((_, i) => i !== index);
+    onChange({
+      ...data,
+      store: {
+        ...data.store,
+        lines: newLines
+      }
+    });
+  };
+
+  const moveHeaderLine = (index: number, direction: 'up' | 'down') => {
+    const lines = [...(data.store.lines || [])];
+    const target = direction === 'up' ? index - 1 : index + 1;
+    if (target < 0 || target >= lines.length) return;
+    const temp = lines[index];
+    lines[index] = lines[target];
+    lines[target] = temp;
+    onChange({
+      ...data,
+      store: {
+        ...data.store,
+        lines
+      }
+    });
+  };
+
+  // 2. DYNAMIC TRANSACTION INFO LINES
+  const addInfoLine = (label = '', value = '', isBold = false) => {
+    const newLine: ReceiptInfoLine = {
+      id: Date.now().toString(),
+      label,
+      value,
+      isBold
+    };
+    onChange({
+      ...data,
+      transaction: {
+        ...data.transaction,
+        lines: [...(data.transaction.lines || []), newLine]
+      }
+    });
+  };
+
+  const updateInfoLine = (index: number, field: keyof ReceiptInfoLine, value: any) => {
+    const newLines = [...(data.transaction.lines || [])];
+    newLines[index] = { ...newLines[index], [field]: value };
+    onChange({
+      ...data,
+      transaction: {
+        ...data.transaction,
+        lines: newLines
+      }
+    });
+  };
+
+  const removeInfoLine = (index: number) => {
+    const newLines = (data.transaction.lines || []).filter((_, i) => i !== index);
+    onChange({
+      ...data,
+      transaction: {
+        ...data.transaction,
+        lines: newLines
+      }
+    });
+  };
+
+  const moveInfoLine = (index: number, direction: 'up' | 'down') => {
+    const lines = [...(data.transaction.lines || [])];
+    const target = direction === 'up' ? index - 1 : index + 1;
+    if (target < 0 || target >= lines.length) return;
+    const temp = lines[index];
+    lines[index] = lines[target];
+    lines[target] = temp;
+    onChange({
+      ...data,
+      transaction: {
+        ...data.transaction,
+        lines
+      }
+    });
+  };
+
+  const addCurrentTimeInfo = () => {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+    const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    addInfoLine('Waktu', `${dateStr} ${timeStr}`, false);
+  };
+
+  const addReceiptNoInfo = () => {
+    addInfoLine('No. Nota', generateReceiptNo(), true);
+  };
+
+  // 3. DYNAMIC FOOTER LINES
+  const addFooterLine = () => {
+    const newLine: FooterLine = {
+      id: Date.now().toString(),
+      text: '',
+      isBold: false
+    };
+    onChange({
+      ...data,
+      footer: {
+        ...data.footer,
+        lines: [...(data.footer.lines || []), newLine]
+      }
+    });
+  };
+
+  const updateFooterLine = (index: number, field: keyof FooterLine, value: any) => {
+    const newLines = [...(data.footer.lines || [])];
+    newLines[index] = { ...newLines[index], [field]: value };
+    onChange({
+      ...data,
+      footer: {
+        ...data.footer,
+        lines: newLines
+      }
+    });
+  };
+
+  const removeFooterLine = (index: number) => {
+    const newLines = (data.footer.lines || []).filter((_, i) => i !== index);
+    onChange({
+      ...data,
+      footer: {
+        ...data.footer,
+        lines: newLines
+      }
+    });
+  };
+
+  const moveFooterLine = (index: number, direction: 'up' | 'down') => {
+    const lines = [...(data.footer.lines || [])];
+    const target = direction === 'up' ? index - 1 : index + 1;
+    if (target < 0 || target >= lines.length) return;
+    const temp = lines[index];
+    lines[index] = lines[target];
+    lines[target] = temp;
+    onChange({
+      ...data,
+      footer: {
+        ...data.footer,
+        lines
+      }
+    });
   };
 
   return (
@@ -347,7 +520,7 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
                 Kalkulasi, Pajak & Pembayaran
               </h3>
               <p className="text-[11px] text-slate-400">
-                Atur diskon nota, PPN, nominal uang bayar, dan kembalian.
+                Atur diskon nota, PPN, metode bayar, nominal uang bayar, dan kembalian.
               </p>
             </div>
 
@@ -449,6 +622,41 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
                 </span>
               </div>
 
+              {/* METODE PEMBAYARAN (Moved to Calculation Tab) */}
+              <div className="space-y-2 pt-2 border-t border-slate-800">
+                <label className="block text-xs font-semibold text-slate-300">
+                  Metode Pembayaran
+                </label>
+
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {['Tunai', 'QRIS', 'Transfer BCA', 'Transfer Mandiri', 'Debit Card', 'Kartu Kredit', 'ShopeePay', 'GoPay'].map((method) => {
+                    const isSelected = (data.calculation.paymentMethod || 'Tunai') === method;
+                    return (
+                      <button
+                        key={method}
+                        type="button"
+                        onClick={() => updateCalc('paymentMethod', method)}
+                        className={`px-2.5 py-1 rounded-lg border text-[11px] font-medium transition-all ${
+                          isSelected
+                            ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50 font-bold shadow-sm'
+                            : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        {method}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <input
+                  type="text"
+                  value={data.calculation.paymentMethod || ''}
+                  onChange={(e) => updateCalc('paymentMethod', e.target.value)}
+                  placeholder="Atau ketik metode kustom (cth: Voucher, OVO, dll)..."
+                  className="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-400"
+                />
+              </div>
+
               {/* Jumlah Bayar & Pecahan Cepat */}
               <div className="space-y-2 pt-2 border-t border-slate-800">
                 <label className="block text-xs font-semibold text-slate-300">
@@ -508,7 +716,7 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
         )}
 
         {/* =================================================================
-            TAB 3: PROFIL TOKO
+            TAB 3: PROFIL TOKO (Dinamis Baris Header Rata Tengah)
             ================================================================= */}
         {activeTab === 'store' && (
           <div className="space-y-4">
@@ -516,10 +724,10 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
               <div>
                 <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
                   <Store className="w-4 h-4 text-cyan-400" />
-                  Identitas Usaha / Toko
+                  Profil & Header Toko
                 </h3>
                 <p className="text-[11px] text-slate-400">
-                  Pengaturan nama toko, alamat, dan logo pada struk.
+                  Logo dan baris teks header toko dinamis (berurutan rata tengah).
                 </p>
               </div>
 
@@ -534,7 +742,7 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
               </button>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-3.5">
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-4">
               
               {/* Logo Section */}
               <div>
@@ -585,71 +793,92 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
                 )}
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Nama Usaha / Toko *
-                </label>
-                <input
-                  type="text"
-                  value={data.store.name}
-                  onChange={(e) => updateStore('name', e.target.value)}
-                  placeholder="Contoh: KAFE KOPI NUSANTARA"
-                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 uppercase font-bold focus:outline-none focus:border-cyan-400"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Slogan / Keterangan Toko
-                </label>
-                <input
-                  type="text"
-                  value={data.store.slogan}
-                  onChange={(e) => updateStore('slogan', e.target.value)}
-                  placeholder="Contoh: Nikmatnya Kopi Asli Indonesia"
-                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-400"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Alamat Lengkap
-                </label>
-                <textarea
-                  rows={2}
-                  value={data.store.address}
-                  onChange={(e) => updateStore('address', e.target.value)}
-                  placeholder="Alamat tempat usaha..."
-                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-400"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    No. Telepon / WhatsApp
+              {/* Dynamic Header Lines */}
+              <div className="pt-3 border-t border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-200">
+                    Header Baris Toko ({(data.store.lines || []).length} Baris)
                   </label>
-                  <input
-                    type="text"
-                    value={data.store.phone}
-                    onChange={(e) => updateStore('phone', e.target.value)}
-                    placeholder="0812-3456-7890"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-400"
-                  />
+                  <span className="text-[10px] text-slate-500">Urut dari atas ke bawah</span>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Website / Akun Sosmed
-                  </label>
-                  <input
-                    type="text"
-                    value={data.store.website || ''}
-                    onChange={(e) => updateStore('website', e.target.value)}
-                    placeholder="www.tokoanda.id"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-400"
-                  />
+                <div className="space-y-2">
+                  {(data.store.lines || []).map((line, idx) => (
+                    <div
+                      key={line.id || idx}
+                      className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-2 hover:border-slate-700 transition-colors"
+                    >
+                      <span className="text-[10px] font-mono text-cyan-400/80 w-5 text-center shrink-0">
+                        #{idx + 1}
+                      </span>
+
+                      <input
+                        type="text"
+                        value={line.text}
+                        onChange={(e) => updateHeaderLine(idx, 'text', e.target.value)}
+                        placeholder={`Header baris ke-${idx + 1} (cth: Nama Toko, Alamat, Telp)...`}
+                        className={`flex-1 px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-400 ${
+                          line.isBold ? 'font-bold text-cyan-300' : ''
+                        }`}
+                      />
+
+                      {/* Bold Checkbox */}
+                      <label
+                        className="flex items-center gap-1 text-[11px] font-semibold text-slate-300 cursor-pointer select-none bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800 hover:border-slate-700 shrink-0"
+                        title="Cetak tebal baris ini di nota"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={line.isBold}
+                          onChange={(e) => updateHeaderLine(idx, 'isBold', e.target.checked)}
+                          className="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-cyan-500 w-3.5 h-3.5"
+                        />
+                        <span className={line.isBold ? 'text-cyan-400 font-bold' : 'text-slate-400'}>Bold</span>
+                      </label>
+
+                      {/* Move buttons */}
+                      <div className="flex items-center shrink-0">
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => moveHeaderLine(idx, 'up')}
+                          className="p-1 rounded text-slate-400 hover:text-slate-200 disabled:opacity-25"
+                          title="Geser ke atas"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === (data.store.lines || []).length - 1}
+                          onClick={() => moveHeaderLine(idx, 'down')}
+                          className="p-1 rounded text-slate-400 hover:text-slate-200 disabled:opacity-25"
+                          title="Geser ke bawah"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Delete */}
+                      <button
+                        type="button"
+                        onClick={() => removeHeaderLine(idx)}
+                        className="p-1 rounded text-slate-500 hover:text-rose-400 transition-colors shrink-0"
+                        title="Hapus baris ini"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
+
+                <button
+                  type="button"
+                  onClick={addHeaderLine}
+                  className="w-full py-2.5 border-2 border-dashed border-slate-700 hover:border-cyan-500/50 rounded-xl text-xs font-semibold text-slate-300 hover:text-cyan-400 flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Tambah Header Baris ke-{(data.store.lines || []).length + 1}</span>
+                </button>
               </div>
 
             </div>
@@ -657,143 +886,153 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
         )}
 
         {/* =================================================================
-            TAB 4: INFO TRANSAKSI
+            TAB 4: INFO TRANSAKSI (Dinamis Label & Value)
             ================================================================= */}
         {activeTab === 'trans' && (
           <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-                <Receipt className="w-4 h-4 text-cyan-400" />
-                Informasi & Header Nota
-              </h3>
-              <p className="text-[11px] text-slate-400">
-                Atur nomor nota, kasir, pelanggan, dan metode pembayaran.
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div>
+                <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+                  <Receipt className="w-4 h-4 text-cyan-400" />
+                  Informasi & Header Nota
+                </h3>
+                <p className="text-[11px] text-slate-400">
+                  Label dan nilai dapat Anda tentukan sendiri secara dinamis.
+                </p>
+              </div>
+
+              {/* Quick helper buttons */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <button
+                  type="button"
+                  onClick={addCurrentTimeInfo}
+                  className="px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-500/40 text-[11px] text-cyan-300 flex items-center gap-1 transition-colors"
+                  title="Tambah baris waktu saat ini"
+                >
+                  <Clock className="w-3 h-3" />
+                  <span>+ Waktu</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={addReceiptNoInfo}
+                  className="px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-500/40 text-[11px] text-cyan-300 flex items-center gap-1 transition-colors"
+                  title="Tambah baris nomor nota acak"
+                >
+                  <Hash className="w-3 h-3" />
+                  <span>+ No. Nota</span>
+                </button>
+              </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-3.5">
-              
-              {/* No. Nota with Generate Button */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-semibold text-slate-300">
-                    Nomor Nota / Faktur
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => updateTrans('receiptNo', generateReceiptNo())}
-                    className="text-[10px] text-cyan-400 hover:underline flex items-center gap-1"
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-3">
+              <div className="flex items-center justify-between pb-1">
+                <span className="text-xs font-bold text-slate-200">
+                  Daftar Baris Info ({(data.transaction.lines || []).length})
+                </span>
+                <span className="text-[10px] text-slate-500">Format 2 kolom di struk (Label : Value)</span>
+              </div>
+
+              <div className="space-y-2.5">
+                {(data.transaction.lines || []).map((line, idx) => (
+                  <div
+                    key={line.id || idx}
+                    className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2 hover:border-slate-700 transition-colors"
                   >
-                    <RefreshCw className="w-3 h-3" />
-                    <span>Generate Baru</span>
-                  </button>
-                </div>
-                <input
-                  type="text"
-                  value={data.transaction.receiptNo}
-                  onChange={(e) => updateTrans('receiptNo', e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono font-bold text-slate-100 focus:outline-none focus:border-cyan-400"
-                />
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded-md border border-cyan-800/50">
+                        Baris #{idx + 1}
+                      </span>
+
+                      <div className="flex items-center gap-1.5">
+                        {/* Bold Value Checkbox */}
+                        <label
+                          className="flex items-center gap-1 text-[11px] font-semibold text-slate-300 cursor-pointer select-none px-2 py-0.5 rounded-md bg-slate-950 border border-slate-800 hover:border-slate-700"
+                          title="Cetak tebal nilai/value pada struk"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={line.isBold}
+                            onChange={(e) => updateInfoLine(idx, 'isBold', e.target.checked)}
+                            className="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-cyan-500 w-3.5 h-3.5"
+                          />
+                          <span className={line.isBold ? 'text-cyan-400 font-bold' : 'text-slate-400'}>Bold</span>
+                        </label>
+
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => moveInfoLine(idx, 'up')}
+                          className="p-1 rounded text-slate-400 hover:text-slate-200 disabled:opacity-25"
+                          title="Geser ke atas"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === (data.transaction.lines || []).length - 1}
+                          onClick={() => moveInfoLine(idx, 'down')}
+                          className="p-1 rounded text-slate-400 hover:text-slate-200 disabled:opacity-25"
+                          title="Geser ke bawah"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeInfoLine(idx)}
+                          className="p-1 rounded text-slate-500 hover:text-rose-400 transition-colors"
+                          title="Hapus baris info ini"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[10px] font-semibold text-slate-400 mb-0.5">
+                          Nama Label
+                        </label>
+                        <input
+                          type="text"
+                          value={line.label}
+                          onChange={(e) => updateInfoLine(idx, 'label', e.target.value)}
+                          placeholder="Cth: No. Nota, Kasir, Plat..."
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-400 font-medium"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-semibold text-slate-400 mb-0.5">
+                          Isi / Nilai
+                        </label>
+                        <input
+                          type="text"
+                          value={line.value}
+                          onChange={(e) => updateInfoLine(idx, 'value', e.target.value)}
+                          placeholder="Cth: INV-001, Fahmi, B 1234 CD..."
+                          className={`w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-400 ${
+                            line.isBold ? 'font-bold text-cyan-300' : ''
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
 
-              {/* Tanggal & Waktu */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Tanggal
-                  </label>
-                  <input
-                    type="text"
-                    value={data.transaction.date}
-                    onChange={(e) => updateTrans('date', e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Waktu
-                  </label>
-                  <input
-                    type="text"
-                    value={data.transaction.time}
-                    onChange={(e) => updateTrans('time', e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 font-mono focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-              </div>
-
-              {/* Kasir & Pelanggan */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Nama Kasir
-                  </label>
-                  <input
-                    type="text"
-                    value={data.transaction.cashier}
-                    onChange={(e) => updateTrans('cashier', e.target.value)}
-                    placeholder="Kasir 1"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Nama Pelanggan (Opsional)
-                  </label>
-                  <input
-                    type="text"
-                    value={data.transaction.customerName || ''}
-                    onChange={(e) => updateTrans('customerName', e.target.value)}
-                    placeholder="Nama Pelanggan"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-              </div>
-
-              {/* No. Meja & Metode Bayar */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    No. Meja / Order
-                  </label>
-                  <input
-                    type="text"
-                    value={data.transaction.tableOrOrderNo || ''}
-                    onChange={(e) => updateTrans('tableOrOrderNo', e.target.value)}
-                    placeholder="Meja 01 / Bungkus"
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Metode Pembayaran
-                  </label>
-                  <select
-                    value={data.transaction.paymentMethod}
-                    onChange={(e) => updateTrans('paymentMethod', e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-400"
-                  >
-                    <option value="Tunai">Tunai / Cash</option>
-                    <option value="QRIS">QRIS</option>
-                    <option value="Transfer BCA">Transfer BCA</option>
-                    <option value="Transfer Mandiri">Transfer Mandiri</option>
-                    <option value="Debit Card">Kartu Debit</option>
-                    <option value="ShopeePay">ShopeePay</option>
-                    <option value="GoPay">GoPay</option>
-                    <option value="OVO">OVO</option>
-                  </select>
-                </div>
-              </div>
-
+              <button
+                type="button"
+                onClick={() => addInfoLine('', '', false)}
+                className="w-full py-2.5 border-2 border-dashed border-slate-700 hover:border-cyan-500/50 rounded-xl text-xs font-semibold text-slate-300 hover:text-cyan-400 flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Tambah Baris Informasi ke-{(data.transaction.lines || []).length + 1}</span>
+              </button>
             </div>
           </div>
         )}
 
         {/* =================================================================
-            TAB 5: FOOTER & QR/BARCODE
+            TAB 5: FOOTER & QR/BARCODE (Dinamis Baris Pesan)
             ================================================================= */}
         {activeTab === 'footer' && (
           <div className="space-y-4">
@@ -803,53 +1042,102 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
                 Catatan Kaki & QR Code
               </h3>
               <p className="text-[11px] text-slate-400">
-                Pesan penutup, garansi, serta QR Code pembayaran/website.
+                Pesan penutup struk dinamis (rata tengah), serta kode QR / Barcode.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-3.5">
+            <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-4">
               
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Pesan Baris 1 (Besar & Tebal)
-                </label>
-                <input
-                  type="text"
-                  value={data.footer.noteLine1}
-                  onChange={(e) => updateFooter('noteLine1', e.target.value)}
-                  placeholder="Terima kasih atas kunjungan Anda!"
-                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-400"
-                />
-              </div>
+              {/* Dynamic Footer Lines */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-200">
+                    Pesan Penutup Struk ({(data.footer.lines || []).length} Baris)
+                  </label>
+                  <span className="text-[10px] text-slate-500">Urut dari atas ke bawah</span>
+                </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Pesan Baris 2 (Ketentuan Toko)
-                </label>
-                <input
-                  type="text"
-                  value={data.footer.noteLine2}
-                  onChange={(e) => updateFooter('noteLine2', e.target.value)}
-                  placeholder="Barang yang sudah dibeli tidak dapat ditukar"
-                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-400"
-                />
-              </div>
+                <div className="space-y-2">
+                  {(data.footer.lines || []).map((line, idx) => (
+                    <div
+                      key={line.id || idx}
+                      className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center gap-2 hover:border-slate-700 transition-colors"
+                    >
+                      <span className="text-[10px] font-mono text-cyan-400/80 w-5 text-center shrink-0">
+                        #{idx + 1}
+                      </span>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Teks Kustom Tambahan
-                </label>
-                <input
-                  type="text"
-                  value={data.footer.customFooterText || ''}
-                  onChange={(e) => updateFooter('customFooterText', e.target.value)}
-                  placeholder="Contoh: Follow IG @toko.anda"
-                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-400"
-                />
+                      <input
+                        type="text"
+                        value={line.text}
+                        onChange={(e) => updateFooterLine(idx, 'text', e.target.value)}
+                        placeholder={`Pesan baris ke-${idx + 1} (cth: Terima kasih, Garansi, dll)...`}
+                        className={`flex-1 px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-xs text-slate-100 focus:outline-none focus:border-cyan-400 ${
+                          line.isBold ? 'font-bold text-cyan-300' : ''
+                        }`}
+                      />
+
+                      {/* Bold Checkbox */}
+                      <label
+                        className="flex items-center gap-1 text-[11px] font-semibold text-slate-300 cursor-pointer select-none bg-slate-950 px-2.5 py-1.5 rounded-lg border border-slate-800 hover:border-slate-700 shrink-0"
+                        title="Cetak tebal baris ini di nota"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={line.isBold}
+                          onChange={(e) => updateFooterLine(idx, 'isBold', e.target.checked)}
+                          className="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-cyan-500 w-3.5 h-3.5"
+                        />
+                        <span className={line.isBold ? 'text-cyan-400 font-bold' : 'text-slate-400'}>Bold</span>
+                      </label>
+
+                      {/* Move buttons */}
+                      <div className="flex items-center shrink-0">
+                        <button
+                          type="button"
+                          disabled={idx === 0}
+                          onClick={() => moveFooterLine(idx, 'up')}
+                          className="p-1 rounded text-slate-400 hover:text-slate-200 disabled:opacity-25"
+                          title="Geser ke atas"
+                        >
+                          <ArrowUp className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          disabled={idx === (data.footer.lines || []).length - 1}
+                          onClick={() => moveFooterLine(idx, 'down')}
+                          className="p-1 rounded text-slate-400 hover:text-slate-200 disabled:opacity-25"
+                          title="Geser ke bawah"
+                        >
+                          <ArrowDown className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Delete */}
+                      <button
+                        type="button"
+                        onClick={() => removeFooterLine(idx)}
+                        className="p-1 rounded text-slate-500 hover:text-rose-400 transition-colors shrink-0"
+                        title="Hapus baris ini"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={addFooterLine}
+                  className="w-full py-2.5 border-2 border-dashed border-slate-700 hover:border-cyan-500/50 rounded-xl text-xs font-semibold text-slate-300 hover:text-cyan-400 flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Tambah Pesan Baris ke-{(data.footer.lines || []).length + 1}</span>
+                </button>
               </div>
 
               {/* QR Code Toggle & Data */}
-              <div className="pt-2 border-t border-slate-800">
+              <div className="pt-3 border-t border-slate-800">
                 <label className="flex items-center gap-2 mb-2 text-xs font-semibold text-slate-300 cursor-pointer">
                   <input
                     type="checkbox"

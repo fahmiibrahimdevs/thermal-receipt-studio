@@ -7,25 +7,42 @@ export interface ReceiptItem {
   note?: string;
 }
 
+export interface HeaderLine {
+  id: string;
+  text: string;
+  isBold: boolean;
+}
+
 export interface StoreProfile {
-  name: string;
-  slogan: string;
   logoUrl?: string;
   logoWidth: number;
   showLogo: boolean;
-  address: string;
-  phone: string;
+  lines: HeaderLine[];
+  // Backwards compatibility
+  name?: string;
+  slogan?: string;
+  address?: string;
+  phone?: string;
   website?: string;
 }
 
+export interface ReceiptInfoLine {
+  id: string;
+  label: string;
+  value: string;
+  isBold: boolean;
+}
+
 export interface TransactionInfo {
-  receiptNo: string;
-  date: string;
-  time: string;
-  cashier: string;
+  lines: ReceiptInfoLine[];
+  // Backwards compatibility
+  receiptNo?: string;
+  date?: string;
+  time?: string;
+  cashier?: string;
   customerName?: string;
   tableOrOrderNo?: string;
-  paymentMethod: string;
+  paymentMethod?: string;
 }
 
 export interface ReceiptCalculation {
@@ -36,18 +53,27 @@ export interface ReceiptCalculation {
   serviceCharge: number;
   serviceChargeEnabled: boolean;
   grandTotal: number;
+  paymentMethod: string;
   paidAmount: number;
   change: number;
 }
 
+export interface FooterLine {
+  id: string;
+  text: string;
+  isBold: boolean;
+}
+
 export interface ReceiptFooter {
-  noteLine1: string;
-  noteLine2: string;
-  customFooterText?: string;
+  lines: FooterLine[];
   showQrCode: boolean;
   qrCodeData: string;
   showBarcode: boolean;
   barcodeData: string;
+  // Backwards compatibility
+  noteLine1?: string;
+  noteLine2?: string;
+  customFooterText?: string;
 }
 
 export interface PrintSettings {

@@ -79,7 +79,7 @@ export const ThermalReceipt = React.forwardRef<HTMLDivElement, ThermalReceiptPro
       }`}
       style={dynamicStyles}
     >
-      {/* 1. Header: Logo & Store Info */}
+      {/* 1. Header: Logo & Dynamic Store Info Lines */}
       <div className="text-center space-y-1 mb-2">
         {data.store.showLogo && data.store.logoUrl && (
           <div className="flex justify-center mb-2">
@@ -92,33 +92,18 @@ export const ThermalReceipt = React.forwardRef<HTMLDivElement, ThermalReceiptPro
           </div>
         )}
 
-        <h1 className="font-bold text-[1.25em] tracking-tight uppercase leading-tight">
-          {data.store.name}
-        </h1>
-
-        {data.store.slogan && (
-          <p className="text-[0.9em] text-gray-700 italic leading-tight">
-            {data.store.slogan}
+        {(data.store.lines || []).map((line, idx) => (
+          <p
+            key={line.id || idx}
+            className={`leading-tight ${
+              line.isBold
+                ? 'font-bold text-[1.15em] tracking-tight uppercase'
+                : 'text-[0.9em] text-gray-800'
+            }`}
+          >
+            {line.text}
           </p>
-        )}
-
-        {data.store.address && (
-          <p className="text-[0.9em] text-gray-800 whitespace-pre-line leading-tight">
-            {data.store.address}
-          </p>
-        )}
-
-        {data.store.phone && (
-          <p className="text-[0.9em] text-gray-800 leading-tight">
-            Telp: {data.store.phone}
-          </p>
-        )}
-
-        {data.store.website && (
-          <p className="text-[0.9em] text-gray-700 leading-tight">
-            {data.store.website}
-          </p>
-        )}
+        ))}
       </div>
 
       {/* Separator */}
@@ -126,33 +111,19 @@ export const ThermalReceipt = React.forwardRef<HTMLDivElement, ThermalReceiptPro
         {getSeparatorLine()}
       </div>
 
-      {/* 2. Transaction Details */}
-      <div className="space-y-0.5 text-[0.92em] mb-1.5">
-        <div className="flex justify-between">
-          <span>No. Nota:</span>
-          <span className="font-bold">{data.transaction.receiptNo}</span>
+      {/* 2. Transaction Details (Dynamic Label & Value) */}
+      {(data.transaction.lines || []).length > 0 && (
+        <div className="space-y-0.5 text-[0.92em] mb-1.5">
+          {data.transaction.lines.map((line, idx) => (
+            <div key={line.id || idx} className="flex justify-between items-start gap-2">
+              <span className="shrink-0">{line.label}:</span>
+              <span className={`text-right break-words ${line.isBold ? 'font-bold' : ''}`}>
+                {line.value}
+              </span>
+            </div>
+          ))}
         </div>
-        <div className="flex justify-between">
-          <span>Waktu:</span>
-          <span>{data.transaction.date} {data.transaction.time}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Kasir:</span>
-          <span>{data.transaction.cashier}</span>
-        </div>
-        {data.transaction.customerName && (
-          <div className="flex justify-between">
-            <span>Pelanggan:</span>
-            <span className="font-semibold">{data.transaction.customerName}</span>
-          </div>
-        )}
-        {data.transaction.tableOrOrderNo && (
-          <div className="flex justify-between">
-            <span>No. Meja/Order:</span>
-            <span className="font-bold">{data.transaction.tableOrOrderNo}</span>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Separator */}
       <div className="overflow-hidden text-center text-gray-600 my-1 text-[0.9em] select-none whitespace-nowrap leading-none">
@@ -242,8 +213,9 @@ export const ThermalReceipt = React.forwardRef<HTMLDivElement, ThermalReceiptPro
           <span className="text-[1.25em]">Rp {formatRupiah(data.calculation.grandTotal)}</span>
         </div>
 
+        {/* Payment Method & Paid */}
         <div className="flex justify-between pt-0.5">
-          <span>Bayar ({data.transaction.paymentMethod}):</span>
+          <span>Bayar ({data.calculation.paymentMethod || 'Tunai'}):</span>
           <span className="font-semibold">Rp {formatRupiah(data.calculation.paidAmount)}</span>
         </div>
 
@@ -266,23 +238,16 @@ export const ThermalReceipt = React.forwardRef<HTMLDivElement, ThermalReceiptPro
 
       {/* 5. Footer Notes & QR / Barcode */}
       <div className="text-center space-y-1.5 mt-2">
-        {data.footer.noteLine1 && (
-          <p className="font-bold text-[0.95em] uppercase">
-            {data.footer.noteLine1}
+        {(data.footer.lines || []).map((line, idx) => (
+          <p
+            key={line.id || idx}
+            className={`leading-tight ${
+              line.isBold ? 'font-bold text-[0.95em]' : 'text-[0.88em] text-gray-700'
+            }`}
+          >
+            {line.text}
           </p>
-        )}
-
-        {data.footer.noteLine2 && (
-          <p className="text-[0.88em] text-gray-700 leading-tight">
-            {data.footer.noteLine2}
-          </p>
-        )}
-
-        {data.footer.customFooterText && (
-          <p className="text-[0.88em] text-gray-800 italic leading-tight">
-            {data.footer.customFooterText}
-          </p>
-        )}
+        ))}
 
         {/* QR Code */}
         {data.footer.showQrCode && data.footer.qrCodeData && (
@@ -306,10 +271,6 @@ export const ThermalReceipt = React.forwardRef<HTMLDivElement, ThermalReceiptPro
             <svg ref={barcodeRef} className="max-w-full" />
           </div>
         )}
-
-        <p className="text-[0.72em] text-gray-500 pt-1">
-          Powered by Thermal 58mm Studio
-        </p>
       </div>
 
     </div>
