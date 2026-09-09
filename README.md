@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/Thumbnail_Thermal_Receipt_Studio.png" alt="Thermal Receipt 58mm Studio" width="100%" />
+</p>
+
 # 🖨️ Thermal Receipt 58mm Studio
 
 [![React](https://img.shields.io/badge/React-18-blue.svg)](https://reactjs.org/)
