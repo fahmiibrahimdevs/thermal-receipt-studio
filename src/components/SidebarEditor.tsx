@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Store, Receipt, ShoppingCart, Calculator, FileText, Settings, 
   Plus, Trash2, RefreshCw, Upload, Image as ImageIcon, QrCode, 
-  Barcode, Check, Sparkles, ChevronDown, ChevronRight, Type,
+  Barcode, Check, ChevronDown, ChevronRight, Type,
   ArrowUp, ArrowDown, Clock, Hash
 } from 'lucide-react';
 import { FullReceiptData, ReceiptItem, HeaderLine, ReceiptInfoLine, FooterLine } from '../types';
@@ -21,7 +21,7 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
   onSaveProfile,
   onLoadPreset
 }) => {
-  const [activeTab, setActiveTab] = useState<'store' | 'trans' | 'items' | 'calc' | 'footer' | 'settings'>('items');
+  const [activeTab, setActiveTab] = useState<'store' | 'trans' | 'items' | 'calc' | 'footer' | 'settings'>('store');
 
   // Helpers for generic sections
   const updateStore = (field: string, value: any) => {
@@ -305,30 +305,7 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
       
       {/* Tab Navigation Icons */}
       <div className="flex items-center gap-1 p-2 bg-slate-950 border-b border-slate-800 overflow-x-auto scrollbar-none">
-        <button
-          onClick={() => setActiveTab('items')}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-            activeTab === 'items'
-              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-          }`}
-        >
-          <ShoppingCart className="w-3.5 h-3.5" />
-          <span>Barang ({data.items.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('calc')}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-            activeTab === 'calc'
-              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
-          }`}
-        >
-          <Calculator className="w-3.5 h-3.5" />
-          <span>Kalkulasi</span>
-        </button>
-
+        {/* 1. Profil Toko */}
         <button
           onClick={() => setActiveTab('store')}
           className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
@@ -341,6 +318,7 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
           <span>Profil Toko</span>
         </button>
 
+        {/* 2. Info Nota */}
         <button
           onClick={() => setActiveTab('trans')}
           className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
@@ -353,6 +331,33 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
           <span>Info Nota</span>
         </button>
 
+        {/* 3. Barang */}
+        <button
+          onClick={() => setActiveTab('items')}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+            activeTab === 'items'
+              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+          }`}
+        >
+          <ShoppingCart className="w-3.5 h-3.5" />
+          <span>Barang ({data.items.length})</span>
+        </button>
+
+        {/* 4. Kalkulasi */}
+        <button
+          onClick={() => setActiveTab('calc')}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+            activeTab === 'calc'
+              ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+          }`}
+        >
+          <Calculator className="w-3.5 h-3.5" />
+          <span>Kalkulasi</span>
+        </button>
+
+        {/* 5. Footer & QR */}
         <button
           onClick={() => setActiveTab('footer')}
           className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
@@ -365,6 +370,7 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
           <span>Footer & QR</span>
         </button>
 
+        {/* 6. Format & Font */}
         <button
           onClick={() => setActiveTab('settings')}
           className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
@@ -400,7 +406,7 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
               <button
                 type="button"
                 onClick={addItem}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold shadow-md shadow-cyan-500/20 transition-all"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold shadow-sm transition-all"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Tambah Item</span>
@@ -1275,7 +1281,7 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
                         onClick={() => updateSettings('fontFamily', f.id)}
                         className={`p-2 rounded-xl border text-left transition-all ${
                           isSelected
-                            ? 'bg-cyan-500/20 border-cyan-400 shadow-sm shadow-cyan-500/20'
+                            ? 'bg-cyan-500/20 border-cyan-400 shadow-sm'
                             : 'bg-slate-900 border-slate-700 hover:border-slate-600'
                         }`}
                       >
@@ -1428,7 +1434,7 @@ export const SidebarEditor: React.FC<SidebarEditorProps> = ({
               {/* Sample Presets */}
               <div className="pt-3 border-t border-slate-800 space-y-2">
                 <label className="block text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                  <FileText className="w-3.5 h-3.5 text-cyan-400" />
                   <span>Muat Contoh Preset Template</span>
                 </label>
                 <div className="grid grid-cols-3 gap-2">

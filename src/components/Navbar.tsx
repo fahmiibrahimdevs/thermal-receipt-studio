@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Printer, Download, Save, RotateCcw, Sparkles, Check, FileText } from 'lucide-react';
+import { Printer, Download, Save, RotateCcw, Check } from 'lucide-react';
 
 interface NavbarProps {
   onPrint: () => void;
@@ -25,25 +25,22 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="no-print relative border-b border-slate-800/90 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-40">
-      {/* Top subtle glow line */}
-      <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+    <header className="no-print relative border-b border-slate-800 bg-slate-950/95 sticky top-0 z-40 w-full">
+      <div className="w-full px-4 sm:px-6 py-2.5">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           
           {/* Logo & Title */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-slate-900 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shadow-lg shadow-cyan-500/10">
-              <Printer className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-200 shadow-sm">
+              <Printer className="w-5 h-5 text-cyan-400" />
             </div>
 
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-black tracking-tight text-white">
-                  THERMAL <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">58MM STUDIO</span>
+                <h1 className="text-base sm:text-lg font-bold tracking-tight text-white">
+                  THERMAL <span className="text-cyan-400">58MM STUDIO</span>
                 </h1>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-500/40 text-cyan-400 font-mono">
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-900 border border-slate-700 text-slate-300 font-mono">
                   Windows POS Ready
                 </span>
               </div>
@@ -99,7 +96,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Primary Print Button */}
             <button
               onClick={onPrint}
-              className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-black text-xs flex items-center gap-2 shadow-lg shadow-cyan-500/25 hover:scale-[1.02] transition-all"
+              className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-2 shadow-sm transition-all active:scale-95"
             >
               <Printer className="w-4 h-4 stroke-[2.5]" />
               <span>CETAK NOTA (PRINT)</span>

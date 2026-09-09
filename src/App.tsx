@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { toPng } from 'html-to-image';
-import { Printer, Download, Sparkles, Info, Eye, CheckCircle2 } from 'lucide-react';
+import { Printer, Download, Info } from 'lucide-react';
 import { FullReceiptData } from './types';
 import { defaultReceiptData, samplePresets } from './data/initialData';
 import { Navbar } from './components/Navbar';
@@ -197,13 +197,9 @@ export function App() {
         </aside>
 
         {/* Right: Realistic 58mm Thermal Receipt Preview Canvas */}
-        <main className="flex-1 h-full bg-[#070b14] overflow-y-auto p-4 sm:p-8 flex flex-col items-center justify-start relative">
-          
-          {/* Ambient Glow behind paper */}
-          <div className="absolute top-12 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-
+        <main className="flex-1 h-full bg-[#080d1a] overflow-y-auto p-4 sm:p-8 flex flex-col items-center justify-start relative">
           {/* Quick Guidance Box on Top */}
-          <div className="max-w-md w-full mb-6 p-3 rounded-2xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 space-y-1">
+          <div className="max-w-md w-full mb-6 p-3 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-1 shadow-sm">
             <div className="flex items-center gap-2 text-cyan-400 font-bold">
               <Info className="w-4 h-4" />
               <span>Petunjuk Cetak Windows (Print 58mm):</span>
@@ -232,7 +228,7 @@ export function App() {
               <button
                 type="button"
                 onClick={handlePrint}
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-black text-xs shadow-xl shadow-cyan-500/20 hover:scale-105 transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-sm transition-all active:scale-95"
               >
                 <Printer className="w-4 h-4" />
                 <span>CETAK STRUK SEKARANG</span>

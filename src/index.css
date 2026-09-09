@@ -37,14 +37,14 @@ body {
   transition: all 0.2s ease;
 }
 .glass-panel-hover:hover {
-  border-color: rgba(56, 189, 248, 0.4);
+  border-color: rgba(148, 163, 184, 0.3);
 }
 
 /* Thermal Paper Visual Styling (Preview Mode on Screen) */
 .thermal-paper {
   background-color: #ffffff;
   color: #000000;
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.9), 0 0 25px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.85);
   position: relative;
   font-family: 'Share Tech Mono', 'JetBrains Mono', 'Courier New', monospace;
   letter-spacing: -0.2px;
